@@ -1,0 +1,5 @@
+DATA_A: Vehicule avec capacité >> somme des demandes, sans obstacle, 1 dépôt et 1 type de véhicule
+DATA_B: Vehicule avec capacité >> sommes des demandes, avec obstacles [fichiers *B1] puis changement de la localisation du dépôt (0,0) -> (6,6) [fichiers *B2], 1 dépôt et 1 type de véhicule
+DATA_C: Vehicule avec capacité << somme des demandes, sans obstacle, 1 dépôt et 1 type de véhicule
+DATA_D: Vehicule avec capacité << somme des demandes, avec obstacles, 1 dépôt et 1 type de véhicule
+DATA_E: Vehicules avec capacité << somme des demandes, avec obstacles, 2 dépôts et 3 types de véhicules
