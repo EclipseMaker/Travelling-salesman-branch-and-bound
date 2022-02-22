@@ -1,17 +1,16 @@
 package Modelisation;
-import java.util.concurrent.atomic.AtomicInteger;
 
-public class Obstacle {
+public class Road {
 	private int x; 
 	private int y; 
-	private Boolean usable;
+	private Boolean isLocation;
 	
-	public Boolean getUsable() {
-		return usable;
+	public Boolean getIsLocation() {
+		return isLocation;
 	}
 
-	public void setUsable(Boolean usable) {
-		this.usable = usable;
+	public void setIsLocation(Boolean usable) {
+		this.isLocation = usable;
 	}
 
 	public int getX() {
@@ -30,15 +29,15 @@ public class Obstacle {
 		this.y = y;
 	}
  	
-	public Obstacle(int x, int y, Boolean usable)
+	public Road(int x, int y, Boolean isLocation)
 	{
 		this.x = x; 
 		this.y = y;
-		this.usable = usable;
+		this.isLocation = isLocation;
 	}
 	
 	public String toString()
 	{
-		return("X");
+		return("-");
 	}
 }

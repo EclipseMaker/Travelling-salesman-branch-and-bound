@@ -3,17 +3,11 @@ package Modelisation;
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class Depot extends Obstacle {
+public class Depot extends Road {
 	private static AtomicInteger count = new AtomicInteger(-1);
 	private int id;
 	private ArrayList<Robot> robots;
 
-	/*public Depot(int x, int y, ArrayList<Robot> robot)
-	{
-		super(x, y, true);
-		this.robots = robots; 
-	}*/
-	
 	public Depot(int x, int y)
 	{
 		super(x, y, true);

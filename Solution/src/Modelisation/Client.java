@@ -2,7 +2,7 @@ package Modelisation;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class Client extends Obstacle {
+public class Client extends Road {
 	private static AtomicInteger count = new AtomicInteger(-1);
 	private int id; 
 	private int need;

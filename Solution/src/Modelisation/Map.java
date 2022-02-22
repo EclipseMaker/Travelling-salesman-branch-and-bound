@@ -5,7 +5,7 @@ import java.util.ArrayList;
 public class Map {
 	private int width; 
 	private int height; 
-	private Obstacle[][] Board;
+	private Road[][] Board;
 	private ArrayList<Client> Clients;
 	private ArrayList<Depot> Depots;
 	
@@ -13,9 +13,12 @@ public class Map {
 	public Map(int width, int height) {
 		this.width = width; 
 		this.height = height;
-		Board = new Obstacle[width][height];
 		Clients = new ArrayList<Client>();
 		Depots = new ArrayList<Depot>();
+		Board = new Road[width][height];
+		for (int x = 0; x < width; x++)
+			for(int y = 0; y < height; y++)
+				Board[x][y] = new Road(x, y, false);
 	}
 
 	public int getWidth() {
@@ -34,11 +37,11 @@ public class Map {
 		this.height = height;
 	}
 
-	public Obstacle[][] getBoard() {
+	public Road[][] getBoard() {
 		return Board;
 	}
 
-	public void setBoard(Obstacle[][] board) {
+	public void setBoard(Road[][] board) {
 		Board = board;
 	}
 
@@ -70,19 +73,14 @@ public class Map {
 		Depots.add(d);
 	}
 	
-	public void updateMap(int x1, int y1, int x2, int y2)
+	public void updateMap(int y1, int x1, int y2, int x2)
 	{
-		int minX = (Math.min(x1, y1)), maxX = (Math.max(x1, y1));
-		int minY = (Math.min(x2, y2)), maxY = (Math.max(x2, y2));
+		int minX = (Math.min(x1, x2)), maxX = (Math.max(x1, x2));
+		int minY = (Math.min(y1, y2)), maxY = (Math.max(y1, y2));
 
 		for (int x = minX; x <= maxX; x++)
-		{
 			for (int y = minY; y <= maxY; y++)
-			{
-				Obstacle o = new Obstacle(x, y, false);
-				Board[x][y] = o;
-			}
-		}
+				Board[x][y] = null;
 	}
 	
 	public void updateMap(Robot r, int idDepot)
@@ -98,7 +96,7 @@ public class Map {
 		for (int y = 0; y < height; y++)
 		{
 			for (int x = 0; x < width; x++)
-				visualMap += (Board[x][y] == null) ? "-" + "\t" : Board[x][y] + "\t";
+				visualMap += (Board[x][y] == null) ? "X" + "\t" : Board[x][y] + "\t";
 			visualMap += y + "\n";
 		}
 		for (int  x = 0; x < width; x++)

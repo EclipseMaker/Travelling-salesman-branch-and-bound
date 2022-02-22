@@ -3,12 +3,10 @@ package Utils;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.nio.file.Path;
-import java.util.ArrayList;
 
 import Modelisation.Client;
 import Modelisation.Depot;
-import Modelisation.Obstacle;
+import Modelisation.Road;
 import Modelisation.Robot;
 import Modelisation.Map;
 
