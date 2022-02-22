@@ -4,6 +4,7 @@ public class Robot {
 	private int capacity;
 	private Depot depot;
 	
+	//Constructors
 	public Robot(int capacity)
 	{
 		this.capacity = capacity;

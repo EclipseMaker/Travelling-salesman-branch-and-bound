@@ -3,16 +3,14 @@ package Modelisation;
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class Depot extends Road {
-	private static AtomicInteger count = new AtomicInteger(-1);
-	private int id;
+public class Depot extends Area {
 	private ArrayList<Robot> robots;
 
-	public Depot(int x, int y)
+	//Constructors
+	public Depot(int id, int x, int y)
 	{
-		super(x, y, true);
+		super(id, x, y, true);
 		this.robots = new ArrayList<Robot>(); 
-		this.id = count.incrementAndGet();
 	}
 	
 	public ArrayList<Robot> getRobots() {
@@ -26,18 +24,10 @@ public class Depot extends Road {
 	public void addRobots(Robot r) {
 		this.robots.add(r);
 	}
-	
-	public int getId() {
-		return id;
-	}
-
-	public void setId(int id) {
-		this.id = id;
-	}
 
 	@Override
 	public String toString()
 	{
-		return("D" + this.getId() + "-" + this.getRobots().size());
+		return("D" + super.getId() + "-" + this.getRobots().size());
 	}
 }

@@ -2,16 +2,14 @@ package Modelisation;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class Client extends Road {
-	private static AtomicInteger count = new AtomicInteger(-1);
-	private int id; 
+public class Client extends Area {
 	private int need;
 	
-	public Client(int x, int y, int need)
+	//Constructors
+	public Client(int id, int x, int y, int need)
 	{
-		super(x, y, true); 
+		super(id, x, y, true); 
 		this.need = need;
-		this.id = count.incrementAndGet();
 	}
 	
 	public int getNeed() {
@@ -22,17 +20,9 @@ public class Client extends Road {
 		this.need = need;
 	}
 	
-	public int getId() {
-		return id;
-	}
-
-	public void setId(int id) {
-		this.id = id;
-	}
-	
 	@Override
 	public String toString()
 	{
-		return("C" + this.getId() + "-" + this.getNeed());
+		return("C" + super.getId() + "-" + this.getNeed());
 	}
 }

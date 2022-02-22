@@ -6,7 +6,6 @@ import java.io.IOException;
 
 import Modelisation.Client;
 import Modelisation.Depot;
-import Modelisation.Road;
 import Modelisation.Robot;
 import Modelisation.Map;
 
@@ -20,14 +19,15 @@ public class MapGenerator {
 	     //Initialize Sized Map
 	     String[] fieldInfo = reader.readLine().split(" ");
 	     Map resultMap = new Map(Integer.parseInt(fieldInfo[0]), Integer.parseInt(fieldInfo[1]));
-	     
+	     int idLocation = 0;
 	     //Add Clients
 	     int nbClients = Integer.parseInt(reader.readLine().trim());
 	     for (int cpt = 0; cpt < nbClients; cpt++)
 	     {
 	    	 fieldInfo = reader.readLine().split(" ");
-	    	 Client c = new Client(Integer.parseInt(fieldInfo[0]), Integer.parseInt(fieldInfo[1]),Integer.parseInt(fieldInfo[2]));
+	    	 Client c = new Client(idLocation, Integer.parseInt(fieldInfo[1]), Integer.parseInt(fieldInfo[0]),Integer.parseInt(fieldInfo[2]));
 	    	 resultMap.updateMap(c);
+	    	 idLocation++;
 	     }
 	     
 	     //Add Obstacles
@@ -44,8 +44,9 @@ public class MapGenerator {
 	     for (int cpt = 0; cpt < nbDepots; cpt++)
 	     {
 	    	 fieldInfo = reader.readLine().split(" ");
-	    	 Depot d = new Depot(Integer.parseInt(fieldInfo[0]), Integer.parseInt(fieldInfo[1]));
+	    	 Depot d = new Depot(idLocation, Integer.parseInt(fieldInfo[1]), Integer.parseInt(fieldInfo[0]));
 	    	 resultMap.updateMap(d);
+	    	 idLocation++;
 	     }
 	     
 	     //Add Robots, each affected to a depot
@@ -58,6 +59,9 @@ public class MapGenerator {
 	    	 for (int cptR = 0; cptR < nbRobots; cptR++)
 	    		resultMap.updateMap(new Robot(capacity), idDepot);
 	     }
+	     
+	     //Initialize path to neighbors roads
+	     resultMap.setNearestPathBetweenLocation();
 	     
 	     reader.close();
 	     return resultMap;    
