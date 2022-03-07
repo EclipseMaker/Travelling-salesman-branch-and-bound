@@ -9,10 +9,19 @@ import java.util.PriorityQueue;
 public class Map {
 	private int width; 
 	private int height; 
-	private Area[][] Board; 
+	
+	//Areas indexed by Coords
+	private Area[][] Board;
+	
+	//RQ : Locations = Clients and Depots
+	//Locations indexed by ID 
+	private HashMap<Integer, Area> Locations;
+	
+	//List of Locations
 	private ArrayList<Client> Clients;
 	private ArrayList<Depot> Depots;
-	private HashMap<Integer, Area> Locations;
+	
+	//Array with shortest path length between Locations
 	private	int[][] incidenceMatrix;
 	
 	//Constructors
@@ -31,7 +40,7 @@ public class Map {
 	public int[][] getIncidenceMatrix() {
 		return incidenceMatrix;
 	}
-	
+
 	public void setIncidenceMatrix(int[][] incidenceMatrix) {
 		this.incidenceMatrix = incidenceMatrix;
 	}
@@ -76,7 +85,7 @@ public class Map {
 		Depots = depots;
 	}
 	
-	//Methods
+	//Map Updates
 	public void updateMap(Client c)
 	{
 		this.Board[c.getX()][c.getY()] = c;
@@ -106,12 +115,16 @@ public class Map {
 		Depot d = this.Depots.get(idDepot);
 		d.addRobots(r); r.setDepot(d);
 	}
-
-	public void setNearestPathBetweenLocation()
+	
+	/**
+	 * Creates matrix shortest path distance between locations (indexed by id)
+	 */
+	public void setNearestPathBetweenLocations()
 	{
 		int nbLocation = this.getClients().size() + this.getDepots().size();
 		incidenceMatrix = new int[nbLocation][nbLocation];
 		
+		//For each location - Sets the currentLocation-othersLocations distance
 		for (Client c : Clients)
 		{
 			setNearestPathToLocation(c);
@@ -128,27 +141,35 @@ public class Map {
 			    incidenceMatrix[d.getId()][entry.getKey()] = entry.getValue().getWeight();
 		}
 		
+		//Paths with same departure arrival locations set to MAX distance
 		for (int xy = 0; xy < nbLocation; xy++)
 			incidenceMatrix[xy][xy] = Integer.MAX_VALUE;
 	}
-
+	
+	/**
+	 * Set shortest path distance from source to all locations 
+	 * @param source departure area
+	 */
 	public void setNearestPathToLocation(Area source)
 	{
+		//Contains path from Source to all Areas of the maps
 		HashMap<Area, ArrayList<Area>> foundPaths = new HashMap<Area, ArrayList<Area>>();
 		
-		ArrayList<Area> currentPathFromSource = new ArrayList<Area>();
-		currentPathFromSource.add(source);
-		foundPaths.put(source, currentPathFromSource);
+		ArrayList<Area> currentPath = new ArrayList<Area>();
+		currentPath.add(source);
+		foundPaths.put(source, currentPath);
 		
 		ArrayList<Area> waitingList = new ArrayList<Area>();
 		waitingList.add(source);
 		
+		//Find the shortest source-area distance for ALL areas
 		while (!waitingList.isEmpty())
 		{
 			Area currentArea = waitingList.remove(0);
 			int currentAreaX = currentArea.getX(), currentAreaY = currentArea.getY();
-			ArrayList<Area> nextAreas = new ArrayList<Area>();
 			
+			//Find currentArea's new and accessible neighbors
+			ArrayList<Area> nextAreas = new ArrayList<Area>();
 			if (currentAreaX > 0 && Board[currentAreaX - 1][currentAreaY]!= null && !foundPaths.containsKey(Board[currentAreaX-1][currentAreaY]))
 				nextAreas.add(Board[currentAreaX-1][currentAreaY]);
 			if (currentAreaX < width - 1 && Board[currentAreaX + 1][currentAreaY]!= null && !foundPaths.containsKey(Board[currentAreaX+1][currentAreaY]))
@@ -158,15 +179,19 @@ public class Map {
 			if (currentAreaY < height - 1 && Board[currentAreaX][currentAreaY+1]!= null && !foundPaths.containsKey(Board[currentAreaX][currentAreaY+1]))
 				nextAreas.add(Board[currentAreaX][currentAreaY+1]);
 			
+			//For each neighbors, clone the source-currentArea path & add the current neighbor 
+			//The obtained path is added to foundPaths
+			//The neighbor is added to waitingList
 			for (Area next : nextAreas)
 			{
-				currentPathFromSource = (ArrayList<Area>)foundPaths.get(currentArea).clone();
-				currentPathFromSource.add(next);
-				foundPaths.put(next, currentPathFromSource);
+				currentPath = (ArrayList<Area>)foundPaths.get(currentArea).clone();
+				currentPath.add(next);
+				foundPaths.put(next, currentPath);
 				waitingList.add(next);
 			}
 		}
 		
+		//Extract the source-locations distance and update source's Paths
 		for(Client c : Clients)
 			source.addPath(new Path(source, c, foundPaths.get(c)));
 		for(Depot d : Depots)
@@ -190,7 +215,6 @@ public class Map {
 	}
 	
 	public void displayIncidenceMatrix() {
-		
 		System.out.println("Matrice Incidence");
 		for(int x = 0; x < incidenceMatrix.length; x++)
 		{
@@ -205,10 +229,14 @@ public class Map {
 		}
 		System.out.println();
 		for (int y = 0; y < incidenceMatrix.length; y++)
-			System.out.print(y  + "\t");
-			
+			System.out.print(y  + "\t");	
 	}
 	
+	/**
+	 * Version 0 Solve - In progress
+	 * @param d departure Depot
+	 * @return Path representing how to visit clients and come back to departure Depot
+	 */
 	public Path findOptimalCycle(Depot d)
 	{
 		Path optimalPath = null;

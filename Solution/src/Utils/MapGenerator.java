@@ -20,6 +20,7 @@ public class MapGenerator {
 	     String[] fieldInfo = reader.readLine().split(" ");
 	     Map resultMap = new Map(Integer.parseInt(fieldInfo[0]), Integer.parseInt(fieldInfo[1]));
 	     int idLocation = 0;
+	    
 	     //Add Clients
 	     int nbClients = Integer.parseInt(reader.readLine().trim());
 	     for (int cpt = 0; cpt < nbClients; cpt++)
@@ -61,7 +62,7 @@ public class MapGenerator {
 	     }
 	     
 	     //Initialize path to neighbors roads
-	     resultMap.setNearestPathBetweenLocation();
+	     resultMap.setNearestPathBetweenLocations();
 	     
 	     reader.close();
 	     return resultMap;    

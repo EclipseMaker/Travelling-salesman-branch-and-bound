@@ -18,11 +18,6 @@ public class Area {
 	}
 	
 	public HashMap<Integer, Path> getPaths() {
-		/*for(HashMap.Entry<Area, Path> entry : Paths.entrySet()) {
-			Area key = entry.getKey();
-			Path value = entry.getValue();
-			System.out.println("Destination " + key + " Path " + value);
-		}*/
 		return Paths;
 	}
 
@@ -67,16 +62,6 @@ public class Area {
 		this.id = id;
 	}
 	
-	public void addPath(Path p)
-	{
-		if (Paths.containsKey(p.getTo()))
-			return;
-		Paths.put(p.getTo().getId(), p);
-		ArrayList<Area> reversedAreas = (ArrayList<Area>)p.getThroughAreas().clone();
-		Collections.reverse(reversedAreas);
-		Path reversedPath = new Path(p.getTo(), this, reversedAreas);
-		p.getTo().Paths.put(this.getId(), reversedPath);
-	}
 	@Override
 	public boolean equals(Object o)
 	{
@@ -93,5 +78,19 @@ public class Area {
 	public String toString()
 	{
 		return("-");
+	}
+	/**
+	 * Add path in Paths for currentArea and destinationPath
+	 * @param p
+	 */
+	public void addPath(Path p)
+	{
+		if (Paths.containsKey(p.getTo()))
+			return;
+		Paths.put(p.getTo().getId(), p);
+		ArrayList<Area> reversedAreas = (ArrayList<Area>)p.getThroughAreas().clone();
+		Collections.reverse(reversedAreas);
+		Path reversedPath = new Path(p.getTo(), this, reversedAreas);
+		p.getTo().Paths.put(this.getId(), reversedPath);
 	}
 }

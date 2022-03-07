@@ -61,7 +61,6 @@ public class Path {
 	{
 		return throughAreas.get(throughAreas.size() - 1);
 	}
-	
 	public ArrayList<Client> getLeftClients() {
 		return leftClients;
 	}
@@ -74,6 +73,7 @@ public class Path {
 	public void setCostMatrix(int[][] costMatrix) {
 		this.costMatrix = costMatrix;
 	}
+	
 	public Path clone()
 	{
 		Path next = new Path();
@@ -88,6 +88,11 @@ public class Path {
 		return next;
 	}
 	
+	/**
+	 * Minimize a square matrix 
+	 * Substract mininum of each column to the affiliated column. Same for the rows.
+	 * @return Sum of all minimums (columns and rows)
+	 */
 	public int minimizeCostMatrix()
 	{
 		//Minimize Rows
@@ -97,10 +102,10 @@ public class Path {
 			int minRow = Integer.MAX_VALUE;
 			for (int y = 0; y < size; y++)
 			{
-				if (costMatrix[x][y] != Integer.MAX_VALUE && costMatrix[x][y] < minRow)
+				if (costMatrix[x][y] < minRow)
 					minRow = costMatrix[x][y];
 				
-				if ((y == size - 1) && (minRow != Integer.MAX_VALUE))
+				if ((y == size - 1) && (minRow != Integer.MAX_VALUE) && (minRow != 0))
 				{
 					sumMinRow += minRow;
 					for (int y2 = 0; y2 < size; y2++)
@@ -117,7 +122,7 @@ public class Path {
 			int minCol = Integer.MAX_VALUE;
 			for (int x = 0; x < size; x++)
 			{
-				if (costMatrix[x][y] != Integer.MAX_VALUE && costMatrix[x][y] < minCol)
+				if (costMatrix[x][y] < minCol)
 					minCol = costMatrix[x][y];
 			
 				if ((x == size - 1) && (minCol != Integer.MAX_VALUE) && (minCol != 0))
