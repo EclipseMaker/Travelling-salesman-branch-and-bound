@@ -6,6 +6,8 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.PriorityQueue;
 
+import Utils.MapGenerator;
+
 public class Map {
 	private int width; 
 	private int height; 
@@ -214,21 +216,21 @@ public class Map {
 		return visualMap;
 	}
 	
-	public void displayIncidenceMatrix() {
+	public void displayMatrix(int[][] matrix) {
 		System.out.println("Matrice Incidence");
-		for(int x = 0; x < incidenceMatrix.length; x++)
+		for(int x = 0; x < matrix.length; x++)
 		{
-			for (int y = 0; y < incidenceMatrix.length; y++)
+			for (int y = 0; y < matrix.length; y++)
 			{
-				if (incidenceMatrix[x][y] == Integer.MAX_VALUE)
+				if (matrix[x][y] == Integer.MAX_VALUE)
 					System.out.print("MAX" + "\t");
 				else
-					System.out.print(incidenceMatrix[x][y] + "\t");
+					System.out.print(matrix[x][y] + "\t");
 			}
 			System.out.println( "\t" + x);
 		}
 		System.out.println();
-		for (int y = 0; y < incidenceMatrix.length; y++)
+		for (int y = 0; y < matrix.length; y++)
 			System.out.print(y  + "\t");	
 	}
 	
@@ -240,6 +242,7 @@ public class Map {
 	public Path findOptimalCycle(Depot d)
 	{
 		Path optimalPath = null;
+		int[][] costMatrix = incidenceMatrix;
 		Path current = new Path() {
 			{
 				setLeftClients(Clients); 
@@ -251,56 +254,80 @@ public class Map {
 		int cost = current.minimizeCostMatrix();
 		current.setCost(cost);
 		
-		ArrayList<Path> waitingList = new ArrayList<Path>(); waitingList.add(current);
 		int upperBound = Integer.MAX_VALUE;
-		
+		ArrayList<Path> waitingList = new ArrayList<Path>(); waitingList.add(current);
+		ArrayList<Path> pathToNextClients;
+		Path nextPath;
+		//int cpt = 0;
 		while(!waitingList.isEmpty())
 		{
-			ArrayList<Path> pathToNextClients = new  ArrayList<Path>();
-			current =  waitingList.remove(0);
+			pathToNextClients = new ArrayList<Path>();
+			current = waitingList.remove(0);
+			//cpt++;
+			//if (cpt == 6)
+				//break;
+			//System.out.println();
+			//System.out.println("NEXT CITY " + current.getLastThroughArea().getId());
+			
 			for (Area nextArea : current.getLeftClients())
 			{
-				Path nextPath = current.clone();
-				cost = current.getCost();
-				int[][] costMatrix = nextPath.getCostMatrix();
-				for (int y = 0; y < costMatrix.length; y++) 
-					costMatrix[nextArea.getId()][y] = Integer.MAX_VALUE;
+				//System.out.println(nextArea.getId());
+				nextPath = current.clone();
+				costMatrix = nextPath.getCostMatrix();
 				
+				for (int y = 0; y < costMatrix.length; y++) 
+					costMatrix[nextArea.getId()][y] = Integer.MAX_VALUE;		
 				for (int x = 0; x < costMatrix.length; x++)
 						costMatrix[x][current.getLastThroughArea().getId()] = Integer.MAX_VALUE;
-				
 				costMatrix[nextArea.getId()][current.getLastThroughArea().getId()] = Integer.MAX_VALUE;
 				
-				cost += nextPath.minimizeCostMatrix();
-				cost += incidenceMatrix[current.getLastThroughArea().getId()][nextArea.getId()];
+				cost = current.getCost(); //System.out.println("av " + cost);
+				cost += nextPath.minimizeCostMatrix(); 
+				//MapGenerator.displayMatrix(costMatrix);	
+				int nextAreaDistance = incidenceMatrix[current.getLastThroughArea().getId()][nextArea.getId()];
+				//System.out.println("DISTANCE A LA PROCHAINE ZONE " + "X : " + current.getLastThroughArea().getId() + " Y " + nextArea.getId() + " " + nextAreaDistance );
+				cost += nextAreaDistance; //System.out.println("ap " + cost); System.out.println();
+				
 				if (cost < upperBound)
 				{
-					nextPath.setCost(cost);
+					nextPath.setCost(cost); 
 					nextPath.addThroughArea(nextArea);
+					nextPath.setWeight(nextPath.getWeight() + nextAreaDistance);
 					pathToNextClients.add(nextPath);
 				}
+				//else
+					//System.out.println("DENIED");
 			}
-			if (!pathToNextClients.isEmpty())
+			if (!current.getLeftClients().isEmpty())
 			{
 				pathToNextClients.sort(Comparator.comparingInt(Path::getCost));
+				/*for (Path p : pathToNextClients)
+					System.out.println(p.getLastThroughArea().getId() + " " + p.getCost());
+				System.out.println(" ");*/
 				waitingList.addAll(0, pathToNextClients);
 			}
 			else 
 			{	
 				cost = current.getCost();
 				cost += current.minimizeCostMatrix();
-				cost += incidenceMatrix[current.getLastThroughArea().getId()][d.getId()];
-				
-				if(upperBound > cost);
+				//System.out.println("FIN" + current.getLastThroughArea().getId());
+				int nextAreaDistance = incidenceMatrix[current.getLastThroughArea().getId()][d.getId()];
+				cost += nextAreaDistance;
+				//System.out.println("JUSQUAU DEPOT" + nextAreaDistance);
+				if(cost < upperBound)
 				{
 					current.setCost(cost);
 					current.addThroughArea(d);
+					current.setWeight(current.getWeight() + nextAreaDistance);
 					optimalPath = current; 
-					upperBound = current.getCost();
+					upperBound = cost;
+					//System.out.println("UPPERBOUND MAJ" + upperBound);
 				}
+				//else
+					//System.out.println("DENIED ");
 			}
 		}
-		System.out.println(optimalPath.getThroughAreas().size());
+		System.out.println("POIDS " + optimalPath.getWeight());
 		return optimalPath; 
 	}
 	

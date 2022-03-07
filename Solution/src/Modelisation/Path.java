@@ -71,20 +71,29 @@ public class Path {
 		return costMatrix;
 	}
 	public void setCostMatrix(int[][] costMatrix) {
-		this.costMatrix = costMatrix;
+		int newCostMatrix[][] = new int[costMatrix.length][costMatrix[0].length];
+		for (int cpt = 0; cpt < costMatrix.length; cpt++)
+			newCostMatrix[cpt] = Arrays.copyOf(costMatrix[cpt], costMatrix[cpt].length);
+		this.costMatrix = newCostMatrix;
 	}
 	
 	public Path clone()
 	{
 		Path next = new Path();
 		next.from = from; next.to = to;
-		next.costMatrix = costMatrix.clone(); 
+		next.cost = cost;
+		//System.out.println("VOICI LE POIDS DAVANT " + weight);
+		next.weight = weight;
+		int newCostMatrix[][] = new int[costMatrix.length][costMatrix[0].length];
+		for (int cpt = 0; cpt < costMatrix.length; cpt++)
+			newCostMatrix[cpt] = Arrays.copyOf(costMatrix[cpt], costMatrix[cpt].length);
+		next.costMatrix = newCostMatrix; 
 		next.throughAreas = new ArrayList<Area>();
 		for(Area a : throughAreas)
 			next.throughAreas.add((Area)a.clone());
 		next.leftClients = new ArrayList<Client>();
 		for(Client c : leftClients)
-			next.throughAreas.add((Client)c.clone());
+			next.leftClients.add((Client)c.clone());
 		return next;
 	}
 	
@@ -151,8 +160,12 @@ public class Path {
 	public String toString()
 	{
 		String visualPath = ""; 
+		System.out.println("START");
 		for (Area a : throughAreas)
-			visualPath += a;
+		{
+			visualPath+="\n";
+			visualPath += a.getId();
+		}
 	
 		return visualPath;
 	}

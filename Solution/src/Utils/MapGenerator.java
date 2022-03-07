@@ -67,4 +67,23 @@ public class MapGenerator {
 	     reader.close();
 	     return resultMap;    
 	}
+	
+	public static void displayMatrix(int[][] matrix) {
+		System.out.println("Matrice Incidence");
+		for(int x = 0; x < matrix.length; x++)
+		{
+			for (int y = 0; y < matrix.length; y++)
+			{
+				if (matrix[x][y] == Integer.MAX_VALUE)
+					System.out.print("MAX" + "\t");
+				else
+					System.out.print(matrix[x][y] + "\t");
+			}
+			System.out.println( "\t" + x);
+		}
+		System.out.println();
+		for (int y = 0; y < matrix.length; y++)
+			System.out.print(y  + "\t");	
+	}
+	
 }
