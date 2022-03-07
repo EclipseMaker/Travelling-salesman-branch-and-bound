@@ -1,6 +1,8 @@
 package Modelisation;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.PriorityQueue;
 
@@ -10,6 +12,7 @@ public class Map {
 	private Area[][] Board; 
 	private ArrayList<Client> Clients;
 	private ArrayList<Depot> Depots;
+	private HashMap<Integer, Area> Locations;
 	private	int[][] incidenceMatrix;
 	
 	//Constructors
@@ -18,6 +21,7 @@ public class Map {
 		this.height = height;
 		Clients = new ArrayList<Client>();
 		Depots = new ArrayList<Depot>();
+		Locations = new HashMap<Integer, Area>();
 		Board = new Area[width][height];
 		for (int x = 0; x < width; x++)
 			for(int y = 0; y < height; y++)
@@ -28,25 +32,6 @@ public class Map {
 		return incidenceMatrix;
 	}
 	
-	public void displayIncidenceMatrix() {
-		
-		System.out.println("Matrice Incidence");
-		for(int x = 0; x < incidenceMatrix.length; x++)
-		{
-			for (int y = 0; y < incidenceMatrix.length; y++)
-			{
-				if (incidenceMatrix[x][y] == Integer.MAX_VALUE)
-					System.out.print("MAX" + "\t");
-				else
-					System.out.print(incidenceMatrix[x][y] + "\t");
-			}
-			System.out.println( "\t" + x);
-		}
-		System.out.println();
-		for (int y = 0; y < incidenceMatrix.length; y++)
-			System.out.print(y  + "\t");
-			
-	}
 	public void setIncidenceMatrix(int[][] incidenceMatrix) {
 		this.incidenceMatrix = incidenceMatrix;
 	}
@@ -96,12 +81,14 @@ public class Map {
 	{
 		this.Board[c.getX()][c.getY()] = c;
 		Clients.add(c);
+		Locations.put(c.getId(), c);
 	}
 	
 	public void updateMap(Depot d)
 	{
 		this.Board[d.getX()][d.getY()] = d;
 		Depots.add(d);
+		Locations.put(d.getId(), d);
 	}
 	
 	public void updateMap(int y1, int x1, int y2, int x2)
@@ -128,19 +115,17 @@ public class Map {
 		for (Client c : Clients)
 		{
 			setNearestPathToLocation(c);
-			System.out.println("Pour le client " + c);
 			c.getPaths();
-			for(HashMap.Entry<Area, Path> entry : c.getPaths().entrySet())
-			    incidenceMatrix[c.getId()][entry.getKey().getId()] =  entry.getValue().getWeight();
+			for(HashMap.Entry<Integer, Path> entry : c.getPaths().entrySet())
+			    incidenceMatrix[c.getId()][entry.getKey()] =  entry.getValue().getWeight();
 		}
 		
 		for (Depot d : Depots)
 		{
 			setNearestPathToLocation(d);
-			System.out.println("Pour le depot " + d);
 			d.getPaths();
-			for(HashMap.Entry<Area, Path> entry : d.getPaths().entrySet())
-			    incidenceMatrix[d.getId()][entry.getKey().getId()] = entry.getValue().getWeight();
+			for(HashMap.Entry<Integer, Path> entry : d.getPaths().entrySet())
+			    incidenceMatrix[d.getId()][entry.getKey()] = entry.getValue().getWeight();
 		}
 		
 		for (int xy = 0; xy < nbLocation; xy++)
@@ -203,4 +188,92 @@ public class Map {
 		
 		return visualMap;
 	}
+	
+	public void displayIncidenceMatrix() {
+		
+		System.out.println("Matrice Incidence");
+		for(int x = 0; x < incidenceMatrix.length; x++)
+		{
+			for (int y = 0; y < incidenceMatrix.length; y++)
+			{
+				if (incidenceMatrix[x][y] == Integer.MAX_VALUE)
+					System.out.print("MAX" + "\t");
+				else
+					System.out.print(incidenceMatrix[x][y] + "\t");
+			}
+			System.out.println( "\t" + x);
+		}
+		System.out.println();
+		for (int y = 0; y < incidenceMatrix.length; y++)
+			System.out.print(y  + "\t");
+			
+	}
+	
+	public Path findOptimalCycle(Depot d)
+	{
+		Path optimalPath = null;
+		Path current = new Path() {
+			{
+				setLeftClients(Clients); 
+				addThroughArea(d);
+				setCostMatrix(incidenceMatrix); 
+			}
+		};
+		
+		int cost = current.minimizeCostMatrix();
+		current.setCost(cost);
+		
+		ArrayList<Path> waitingList = new ArrayList<Path>(); waitingList.add(current);
+		int upperBound = Integer.MAX_VALUE;
+		
+		while(!waitingList.isEmpty())
+		{
+			ArrayList<Path> pathToNextClients = new  ArrayList<Path>();
+			current =  waitingList.remove(0);
+			for (Area nextArea : current.getLeftClients())
+			{
+				Path nextPath = current.clone();
+				cost = current.getCost();
+				int[][] costMatrix = nextPath.getCostMatrix();
+				for (int y = 0; y < costMatrix.length; y++) 
+					costMatrix[nextArea.getId()][y] = Integer.MAX_VALUE;
+				
+				for (int x = 0; x < costMatrix.length; x++)
+						costMatrix[x][current.getLastThroughArea().getId()] = Integer.MAX_VALUE;
+				
+				costMatrix[nextArea.getId()][current.getLastThroughArea().getId()] = Integer.MAX_VALUE;
+				
+				cost += nextPath.minimizeCostMatrix();
+				cost += incidenceMatrix[current.getLastThroughArea().getId()][nextArea.getId()];
+				if (cost < upperBound)
+				{
+					nextPath.setCost(cost);
+					nextPath.addThroughArea(nextArea);
+					pathToNextClients.add(nextPath);
+				}
+			}
+			if (!pathToNextClients.isEmpty())
+			{
+				pathToNextClients.sort(Comparator.comparingInt(Path::getCost));
+				waitingList.addAll(0, pathToNextClients);
+			}
+			else 
+			{	
+				cost = current.getCost();
+				cost += current.minimizeCostMatrix();
+				cost += incidenceMatrix[current.getLastThroughArea().getId()][d.getId()];
+				
+				if(upperBound > cost);
+				{
+					current.setCost(cost);
+					current.addThroughArea(d);
+					optimalPath = current; 
+					upperBound = current.getCost();
+				}
+			}
+		}
+		System.out.println(optimalPath.getThroughAreas().size());
+		return optimalPath; 
+	}
+	
 }

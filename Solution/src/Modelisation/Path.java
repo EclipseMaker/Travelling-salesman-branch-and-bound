@@ -1,11 +1,15 @@
 package Modelisation;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class Path {
 	private Area from; 
 	private Area to;
+	private int[][] costMatrix;
+	private int cost; 
 	private ArrayList<Area> throughAreas;
+	private ArrayList<Client> leftClients;
 	private int weight;
 
 	//Constructors
@@ -24,7 +28,6 @@ public class Path {
 		this.throughAreas = throughAreas;
 		this.weight = throughAreas.size() - 1;
 	}
-	
 	public Area getFrom() {
 		return from;
 	}
@@ -52,6 +55,91 @@ public class Path {
 	public void addThroughArea(Area a)
 	{
 		throughAreas.add(a);
+		leftClients.remove(a);
+	}
+	public Area getLastThroughArea()
+	{
+		return throughAreas.get(throughAreas.size() - 1);
+	}
+	
+	public ArrayList<Client> getLeftClients() {
+		return leftClients;
+	}
+	public void setLeftClients(ArrayList<Client> leftClients) {
+		this.leftClients = leftClients;
+	}
+	public int[][] getCostMatrix() {
+		return costMatrix;
+	}
+	public void setCostMatrix(int[][] costMatrix) {
+		this.costMatrix = costMatrix;
+	}
+	public Path clone()
+	{
+		Path next = new Path();
+		next.from = from; next.to = to;
+		next.costMatrix = costMatrix.clone(); 
+		next.throughAreas = new ArrayList<Area>();
+		for(Area a : throughAreas)
+			next.throughAreas.add((Area)a.clone());
+		next.leftClients = new ArrayList<Client>();
+		for(Client c : leftClients)
+			next.throughAreas.add((Client)c.clone());
+		return next;
+	}
+	
+	public int minimizeCostMatrix()
+	{
+		//Minimize Rows
+		int sumMinRow = 0; int size = costMatrix.length;
+		for (int x = 0; x < size; x++)
+		{
+			int minRow = Integer.MAX_VALUE;
+			for (int y = 0; y < size; y++)
+			{
+				if (costMatrix[x][y] != Integer.MAX_VALUE && costMatrix[x][y] < minRow)
+					minRow = costMatrix[x][y];
+				
+				if ((y == size - 1) && (minRow != Integer.MAX_VALUE))
+				{
+					sumMinRow += minRow;
+					for (int y2 = 0; y2 < size; y2++)
+						if (costMatrix[x][y2] != Integer.MAX_VALUE)
+							costMatrix[x][y2] -= minRow;
+				}	
+			}
+		}
+		
+		//Minimize Columns
+		int sumMinCol = 0;
+		for (int y = 0; y < size; y++)
+		{
+			int minCol = Integer.MAX_VALUE;
+			for (int x = 0; x < size; x++)
+			{
+				if (costMatrix[x][y] != Integer.MAX_VALUE && costMatrix[x][y] < minCol)
+					minCol = costMatrix[x][y];
+			
+				if ((x == size - 1) && (minCol != Integer.MAX_VALUE) && (minCol != 0))
+				{
+					sumMinCol += minCol;
+					for (int x2 = 0; x2 < size; x2++)
+					{
+						if (costMatrix[x2][y] != Integer.MAX_VALUE)
+							costMatrix[x2][y] -= minCol;
+					}
+				}
+			}
+		}
+		
+		return sumMinRow + sumMinCol;
+	}
+	
+	public int getCost() {
+		return cost;
+	}
+	public void setCost(int cost) {
+		this.cost = cost;
 	}
 	
 	@Override
@@ -59,7 +147,8 @@ public class Path {
 	{
 		String visualPath = ""; 
 		for (Area a : throughAreas)
-			visualPath += "(" + a.getX() + a.getY() + ") ";
+			visualPath += a;
+	
 		return visualPath;
 	}
 }

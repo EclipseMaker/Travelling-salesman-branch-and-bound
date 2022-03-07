@@ -8,8 +8,8 @@ import java.util.HashMap;
 public class Area {
 	private int id; 
 	private int x;
-	private int y; 
-	private HashMap<Area, Path>Paths;
+	private int y;
+	private HashMap<Integer, Path>Paths;
 	private Boolean isLocation;
 	
 	//Constructors
@@ -17,16 +17,16 @@ public class Area {
 		return isLocation;
 	}
 	
-	public HashMap<Area, Path> getPaths() {
-		for(HashMap.Entry<Area, Path> entry : Paths.entrySet()) {
+	public HashMap<Integer, Path> getPaths() {
+		/*for(HashMap.Entry<Area, Path> entry : Paths.entrySet()) {
 			Area key = entry.getKey();
 			Path value = entry.getValue();
 			System.out.println("Destination " + key + " Path " + value);
-		}
+		}*/
 		return Paths;
 	}
 
-	public void setPaths(HashMap<Area, Path> paths) {
+	public void setPaths(HashMap<Integer, Path> paths) {
 		Paths = paths;
 	}
 	
@@ -62,7 +62,7 @@ public class Area {
 	{
 		this.x = x; 
 		this.y = y;
-		this.Paths = new HashMap<Area, Path>();
+		this.Paths = new HashMap<Integer, Path>();
 		this.isLocation = isLocation;
 		this.id = id;
 	}
@@ -71,13 +71,25 @@ public class Area {
 	{
 		if (Paths.containsKey(p.getTo()))
 			return;
-		Paths.put(p.getTo(), p);
+		Paths.put(p.getTo().getId(), p);
 		ArrayList<Area> reversedAreas = (ArrayList<Area>)p.getThroughAreas().clone();
 		Collections.reverse(reversedAreas);
 		Path reversedPath = new Path(p.getTo(), this, reversedAreas);
-		p.getTo().Paths.put(this, reversedPath);
+		p.getTo().Paths.put(this.getId(), reversedPath);
+	}
+	@Override
+	public boolean equals(Object o)
+	{
+		return ((Area)o).id == id;
 	}
 	
+	@Override
+	public Area clone()
+	{
+		Area o = new Area(id, x, y, isLocation);
+		((Area)o).setPaths(this.Paths);
+		return o;
+	}
 	public String toString()
 	{
 		return("-");

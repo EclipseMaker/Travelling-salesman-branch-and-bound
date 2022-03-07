@@ -8,7 +8,7 @@ public class Client extends Area {
 	//Constructors
 	public Client(int id, int x, int y, int need)
 	{
-		super(id, x, y, true); 
+		super(id, x, y, true);
 		this.need = need;
 	}
 	
@@ -18,6 +18,13 @@ public class Client extends Area {
 
 	public void setNeed(int need) {
 		this.need = need;
+	}
+	
+	public Client clone()
+	{
+		Client c = new Client(super.getId(), super.getX(), super.getY(), need);
+		c.setPaths(super.getPaths());
+		return c; 
 	}
 	
 	@Override

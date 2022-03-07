@@ -16,6 +16,7 @@ public class Version0 {
 		//Map m = MapGenerator.generateMap("src/Testdata/DATA_E/Test20_20_E.txt");
 		System.out.println(m);
 		m.displayIncidenceMatrix();
+		System.out.println(m.findOptimalCycle(m.getDepots().get(0)));
 	}
 
 }
